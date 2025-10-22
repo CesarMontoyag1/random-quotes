@@ -35,7 +35,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./random-quotes
+          file: ./random-quotes/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/random-quotes:latest,${{ secrets.DOCKERHUB_USERNAME }}/random-quotes:${{ github.sha }}
