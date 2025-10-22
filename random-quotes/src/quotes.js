@@ -1,0 +1,87 @@
+// src/quotes.js
+const fs = require('fs');
+const path = require('path');
+
+const DATA_FILE = path.join(__dirname, '..', 'data', 'quotes.json');
+
+
+const initialQuotes = [
+  { id: 1, text: 'The best way to predict the future is to invent it.', author: 'Alan Kay' },
+  { id: 2, text: 'Simplicity is the soul of efficiency.', author: 'Austin Freeman' },
+  { id: 3, text: 'Continuous improvement is better than delayed perfection.', author: 'Mark Twain' },
+  { id: 4, text: 'Programs must be written for people to read, and only incidentally for machines to execute.', author: 'Harold Abelson' },
+  { id: 5, text: 'If you automate a mess, you get an automated mess.', author: 'Rod Michael' },
+  { id: 6, text: 'First, solve the problem. Then, write the code.', author: 'John Johnson' },
+  { id: 7, text: 'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.', author: 'Martin Fowler' },
+  { id: 8, text: 'Talk is cheap. Show me the code.', author: 'Linus Torvalds' },
+  { id: 9, text: 'Experience is the name everyone gives to their mistakes.', author: 'Oscar Wilde' },
+  { id: 10, text: 'Success is the ability to go from one failure to another with no loss of enthusiasm.', author: 'Winston Churchill' }
+];
+
+function ensureDataFile() {
+  if (!fs.existsSync(DATA_FILE)) {
+    // crear archivo a partir del array inicial
+    fs.writeFileSync(DATA_FILE, JSON.stringify(initialQuotes, null, 2), 'utf8');
+  }
+}
+
+function readAll() {
+  ensureDataFile();
+  const raw = fs.readFileSync(DATA_FILE, 'utf8').trim();
+
+  // Si el archivo está vacío, inicializamos con las quotes por defecto
+  if (!raw) {
+    writeAll(initialQuotes);
+    return initialQuotes;
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    // JSON corrupto: reescribimos con los valores iniciales
+    writeAll(initialQuotes);
+    return initialQuotes;
+  }
+}
+
+function writeAll(quotes) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(quotes, null, 2), 'utf8');
+}
+
+// API de funciones
+function getAll() {
+  return readAll();
+}
+
+function getById(id) {
+  const quotes = readAll();
+  return quotes.find(q => q.id === id) || null;
+}
+
+function getRandom() {
+  const quotes = readAll();
+  if (!quotes.length) return null;
+  const i = Math.floor(Math.random() * quotes.length);
+  return quotes[i];
+}
+
+function addQuote({ text, author }) {
+  if (!text || typeof text !== 'string' || text.trim().length < 3) {
+    const err = new Error('Invalid text');
+    err.status = 400;
+    throw err;
+  }
+  const quotes = readAll();
+  const nextId = quotes.length ? Math.max(...quotes.map(q => q.id)) + 1 : 1;
+  const newQ = { id: nextId, text: text.trim(), author: author ? String(author).trim() : 'Unknown' };
+  quotes.push(newQ);
+  writeAll(quotes);
+  return newQ;
+}
+
+module.exports = {
+  getAll,
+  getById,
+  getRandom,
+  addQuote
+};
