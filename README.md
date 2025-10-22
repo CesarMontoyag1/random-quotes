@@ -40,6 +40,6 @@ docker swarm leave --force
 
 ## Usar metodo Post:
 
-ejemplo:
+ejemplo de uso powershell:
 
 curl.exe --% -X POST -H "Content-Type: application/json" -d "{\"text\":\"Probando el metodo Post\",\"author\":\"Cesar\"}" http://localhost:3000/quotes
